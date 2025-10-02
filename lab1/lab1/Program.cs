@@ -18,24 +18,17 @@ public readonly struct Record
 
     public override string ToString() => $"{Key}-{Value}-{Date}";
 
-    public static bool operator <(Record rec1, Record rec2)
-    {
-        return rec1.Key < rec2.Key;
-    }
-    public static bool operator >(Record rec1, Record rec2)
-    {
-        return rec1.Key > rec2.Key;
-    }   
-    public static bool operator <=(Record rec1, Record rec2)
-    {
-        return rec1.Key <= rec2.Key;
-    }
-    public static bool operator >=(Record rec1, Record rec2)
-    {
-        return rec1.Key >= rec2.Key;
-    }
-    
-    
+    public static bool operator <(Record rec1, Record rec2) => rec1.Key < rec2.Key;
+
+    public static bool operator >(Record rec1, Record rec2) => rec1.Key > rec2.Key;
+
+    public static bool operator <=(Record rec1, Record rec2) => rec1.Key <= rec2.Key;
+
+    public static bool operator >=(Record rec1, Record rec2) => rec1.Key >= rec2.Key;
+
+    public static bool operator ==(Record rec1, Record rec2) => rec1.Key == rec2.Key;
+
+    public static bool operator !=(Record rec1, Record rec2) => rec1.Key != rec2.Key;
 }
 
 class Program
@@ -43,14 +36,8 @@ class Program
     static void Main(string[] args)
     {
         var path = "../../../files/file.txt";
-        //GenerateFile(path, 10000000);
-        using (StreamReader sr = new(path))
-        {
-            var line = sr.ReadLine();
-            Record record1 = new(line);
-            Console.WriteLine(record1);
-            sr.Close();
-        }
+        GenerateFile(path, 100);
+        AdaptiveSorter.AdaptiveMergeSort(path);
         /*int[] arr = GenerateRandomArray(1000, 1, 1000);
         MergeSort(arr, 0, arr.Length - 1);
         PrintArray(arr);*/
@@ -170,12 +157,33 @@ class Program
 
 static class AdaptiveSorter
 {
-    static List<int> index = new();
 
-    static void AdaptiveMergeSort(string path)
+    public static void AdaptiveMergeSort(string path)
     {
+        List<int> index = new([0]);
         using (StreamReader streamReader = new StreamReader(path))
         {
+            var indexIterator = 0;
+            string? line;
+            Record? previousRecord = null;
+            while (( line = streamReader.ReadLine()) != null)
+            {
+                var record = new Record(line);
+                if (previousRecord != null)
+                {
+                    if (record <= previousRecord)
+                    {
+                        index.Add(indexIterator);
+                    }
+                }
+                previousRecord = record;
+                indexIterator++;
+            }
+        }
+
+        foreach (var item in index)
+        {
+            Console.WriteLine(item);
         }
     }
 
