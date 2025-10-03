@@ -35,8 +35,8 @@ class Program
 {
     static void Main(string[] args)
     {
-        var path = "../../../files/file.txt";
-        GenerateFile(path, 100);
+        var path = "../../../files/fileA.txt";
+        // GenerateFile(path, 100);
         AdaptiveSorter.AdaptiveMergeSort(path);
         /*int[] arr = GenerateRandomArray(1000, 1, 1000);
         MergeSort(arr, 0, arr.Length - 1);
@@ -157,31 +157,72 @@ class Program
 
 static class AdaptiveSorter
 {
+    const string pathB = "../../../files/fileB.txt";
 
-    public static void AdaptiveMergeSort(string path)
+    const string pathC = "../../../files/fileC.txt";
+
+    private static List<int> IndexCounter(string path)
     {
-        List<int> index = new([0]);
-        using (StreamReader streamReader = new StreamReader(path))
+        List<int> indexList = new([0]);
+        using (var streamReader = new StreamReader(path))
         {
             var indexIterator = 0;
             string? line;
             Record? previousRecord = null;
-            while (( line = streamReader.ReadLine()) != null)
+            while ((line = streamReader.ReadLine()) != null)
             {
                 var record = new Record(line);
                 if (previousRecord != null)
                 {
                     if (record <= previousRecord)
                     {
-                        index.Add(indexIterator);
+                        indexList.Add(indexIterator);
                     }
                 }
+
                 previousRecord = record;
                 indexIterator++;
             }
         }
 
-        foreach (var item in index)
+        return indexList;
+    }
+
+    public static void AdaptiveMergeSort(string pathA)
+    {
+        var fileAStreamReader = new StreamReader(pathA);
+        var fileBStreamWriter = new StreamWriter(pathB);
+        var fileCStreamWriter = new StreamWriter(pathC);
+        var indexList = IndexCounter(pathA);
+        using (fileAStreamReader)
+        using (fileBStreamWriter)
+        using (fileCStreamWriter)
+        {
+            string? line;
+            var lineCounter = 0;
+            var index = 0;
+            while ((line = fileAStreamReader.ReadLine()) != null)
+            {
+                if (lineCounter == indexList[index + 1] && lineCounter != 0)
+                {
+                    index++;
+                }
+
+                if (index % 2 == 0)
+                {
+                    fileBStreamWriter.WriteLine(line);
+                }
+                else
+                {
+                    fileCStreamWriter.WriteLine(line);
+                }
+
+                lineCounter++;
+            }
+        }
+        
+
+        foreach (var item in indexList)
         {
             Console.WriteLine(item);
         }
