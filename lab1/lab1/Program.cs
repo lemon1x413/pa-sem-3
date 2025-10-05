@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Diagnostics;
 
 namespace lab1;
 
@@ -36,94 +37,9 @@ class Program
     static void Main(string[] args)
     {
         var path = "../../../files/fileA.txt";
-        // GenerateFile(path, 100);
+        //GenerateFile(path, 45000000);
         AdaptiveSorter.AdaptiveMergeSort(path);
-        /*int[] arr = GenerateRandomArray(1000, 1, 1000);
-        MergeSort(arr, 0, arr.Length - 1);
-        PrintArray(arr);*/
-    }
-
-    static void MergeSort(int[] arr, int left, int right)
-    {
-        if (left < right)
-        {
-            int middle = (left + right) / 2;
-            MergeSort(arr, left, middle);
-            MergeSort(arr, middle + 1, right);
-            Merge(arr, left, middle, right);
-        }
-    }
-
-    static void Merge(int[] arr, int left, int middle, int right)
-    {
-        int n1 = middle - left + 1;
-        int n2 = right - middle;
-        int[] leftArray = new int[n1];
-        int[] rightArray = new int[n2];
-        int i, j;
-        for (i = 0; i < n1; i++)
-        {
-            leftArray[i] = arr[left + i];
-        }
-
-        for (j = 0; j < n2; j++)
-        {
-            rightArray[j] = arr[middle + 1 + j];
-        }
-
-        i = 0;
-        j = 0;
-        int k = left;
-        while (i < n1 && j < n2)
-        {
-            if (leftArray[i] <= rightArray[j])
-            {
-                arr[k] = leftArray[i];
-                i++;
-            }
-            else
-            {
-                arr[k] = rightArray[j];
-                j++;
-            }
-
-            k++;
-        }
-
-        while (i < n1)
-        {
-            arr[k] = leftArray[i];
-            i++;
-            k++;
-        }
-
-        while (j < n2)
-        {
-            arr[k] = rightArray[j];
-            j++;
-            k++;
-        }
-    }
-
-
-    static int[] GenerateRandomArray(int size, int min, int max)
-    {
-        Random random = new Random();
-        int[] arr = new int[size];
-        for (int i = 0; i < size; i++)
-        {
-            arr[i] = random.Next(min, max + 1);
-        }
-
-        return arr;
-    }
-
-    static void PrintArray(int[] arr)
-    {
-        foreach (var item in arr)
-        {
-            Console.WriteLine(item);
-        }
+        AdaptiveSorter.IsSorted(path);
     }
 
     static void GenerateFile(string path, int n)
@@ -147,11 +63,11 @@ class Program
             DateTime randomDate = start.AddDays(rand.Next(range));
 
             string dateString = randomDate.ToString("dd.MM.yyyy");
-            var row = $"{rand.Next(1, 10000)}-{randomChar}-{dateString}";
+            var row = $"{rand.Next(1, 100000)}-{randomChar}-{dateString}";
             streamWriter.WriteLine(row);
         }
 
-        Console.WriteLine("Done!");
+        Console.WriteLine("Generation done!");
     }
 }
 
@@ -161,6 +77,133 @@ static class AdaptiveSorter
 
     const string pathC = "../../../files/fileC.txt";
 
+    public static void AdaptiveMergeSort(string pathA)
+    {
+        List<int> indexListA = IndexCounter(pathA);
+        while (indexListA.Count > 2)
+        {
+            using (var fileAStreamReader = new StreamReader(pathA))
+            using (var fileBStreamWriter = new StreamWriter(pathB))
+            using (var fileCStreamWriter = new StreamWriter(pathC))
+            {
+                string? line;
+                var lineCounter = 0;
+                var index = 1;
+                while ((line = fileAStreamReader.ReadLine()) != null)
+                {
+                    if (lineCounter == indexListA[index - 1])
+                    {
+                        index++;
+                    }
+
+                    if (index % 2 == 0)
+                    {
+                        fileBStreamWriter.WriteLine(line);
+                    }
+                    else
+                    {
+                        fileCStreamWriter.WriteLine(line);
+                    }
+
+                    lineCounter++;
+                }
+            }
+
+            var indexListB = IndexCounter(pathB);
+            var indexListC = IndexCounter(pathC);
+
+            using (var fileAStreamWriter = new StreamWriter(pathA))
+            using (var fileBStreamReader = new StreamReader(pathB))
+            using (var fileCStreamReader = new StreamReader(pathC))
+            {
+                int indexB = 1;
+                int indexC = 1;
+                string? lineB = fileBStreamReader.ReadLine();
+                string? lineC = fileCStreamReader.ReadLine();
+                Record recordB = new(lineB);
+                Record recordC = new(lineC);
+                while (indexB < indexListB.Count && indexC < indexListC.Count)
+                {
+                    int n1 = indexListB[indexB] - indexListB[indexB - 1];
+                    int n2 = indexListC[indexC] - indexListC[indexC - 1];
+
+                    int i = 0;
+                    int j = 0;
+
+                    while (i < n1 && j < n2)
+                    {
+                        if (recordB <= recordC)
+                        {
+                            fileAStreamWriter.WriteLine(recordB.ToString());
+                            if ((lineB = fileBStreamReader.ReadLine()) != null)
+                                recordB = new(lineB);
+                            i++;
+                        }
+                        else
+                        {
+                            fileAStreamWriter.WriteLine(recordC.ToString());
+                            if ((lineC = fileCStreamReader.ReadLine()) != null)
+                                recordC = new(lineC);
+                            j++;
+                        }
+                    }
+
+                    while (i < n1)
+                    {
+                        fileAStreamWriter.WriteLine(recordB.ToString());
+                        if ((lineB = fileBStreamReader.ReadLine()) != null)
+                            recordB = new(lineB);
+                        i++;
+                    }
+
+                    while (j < n2)
+                    {
+                        fileAStreamWriter.WriteLine(recordC.ToString());
+                        if ((lineC = fileCStreamReader.ReadLine()) != null)
+                            recordC = new(lineC);
+                        j++;
+                    }
+
+                    indexB++;
+                    indexC++;
+                }
+
+                while (indexB < indexListB.Count)
+                {
+                    int i = 0;
+                    int n1 = indexListB[indexB] - indexListB[indexB - 1];
+                    while (i < n1)
+                    {
+                        fileAStreamWriter.WriteLine(recordB.ToString());
+                        if ((lineB = fileBStreamReader.ReadLine()) != null)
+                            recordB = new(lineB);
+                        i++;
+                    }
+
+                    indexB++;
+                }
+
+                while (indexC < indexListC.Count)
+                {
+                    int j = 0;
+                    int n2 = indexListC[indexC] - indexListC[indexC - 1];
+                    while (j < n2)
+                    {
+                        fileAStreamWriter.WriteLine(recordC.ToString());
+                        if ((lineC = fileCStreamReader.ReadLine()) != null)
+                            recordC = new(lineC);
+                        j++;
+                    }
+
+                    indexC++;
+                }
+            }
+
+            indexListA = IndexCounter(pathA);
+        }
+        Console.WriteLine("Sorting done!");
+    }
+    
     private static List<int> IndexCounter(string path)
     {
         List<int> indexList = new([0]);
@@ -174,7 +217,7 @@ static class AdaptiveSorter
                 var record = new Record(line);
                 if (previousRecord != null)
                 {
-                    if (record <= previousRecord)
+                    if (record < previousRecord)
                     {
                         indexList.Add(indexIterator);
                     }
@@ -183,52 +226,30 @@ static class AdaptiveSorter
                 previousRecord = record;
                 indexIterator++;
             }
+
+            indexList.Add(indexIterator);
         }
 
         return indexList;
     }
 
-    public static void AdaptiveMergeSort(string pathA)
+    public static void IsSorted(string path)
     {
-        var fileAStreamReader = new StreamReader(pathA);
-        var fileBStreamWriter = new StreamWriter(pathB);
-        var fileCStreamWriter = new StreamWriter(pathC);
-        var indexList = IndexCounter(pathA);
-        using (fileAStreamReader)
-        using (fileBStreamWriter)
-        using (fileCStreamWriter)
+        using (StreamReader streamReader = new(path))
         {
+            var prevRecord = new Record(streamReader.ReadLine());
             string? line;
-            var lineCounter = 0;
-            var index = 0;
-            while ((line = fileAStreamReader.ReadLine()) != null)
+            while ((line = streamReader.ReadLine()) != null)
             {
-                if (lineCounter == indexList[index + 1] && lineCounter != 0)
+                var record = new Record(line);
+                if (prevRecord > record)
                 {
-                    index++;
+                    Console.WriteLine("Not Sorted");
+                    return;
                 }
-
-                if (index % 2 == 0)
-                {
-                    fileBStreamWriter.WriteLine(line);
-                }
-                else
-                {
-                    fileCStreamWriter.WriteLine(line);
-                }
-
-                lineCounter++;
             }
-        }
-        
 
-        foreach (var item in indexList)
-        {
-            Console.WriteLine(item);
+            Console.WriteLine("Is Sorted");
         }
-    }
-
-    static void Merge(int[] arr, int left, int middle, int right)
-    {
     }
 }
