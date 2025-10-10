@@ -1,6 +1,4 @@
-﻿
-
-using System.Text;
+﻿using System.Text;
 
 namespace lab1;
 
@@ -10,25 +8,31 @@ public static class AdaptiveSorter
 
     const string pathC = "../../../files/fileC.txt";
 
+    const int bufferSize = 1024 * 1024;
+
     public static void ModifiedAdaptiveMergeSort(string pathA)
     {
         const string pathT = "../../../files/fileT.txt";
 
-        using (var fileAStreamReader = new StreamReader(pathA, Encoding.UTF8))
-        using (var fileTStreamWriter = new StreamWriter(pathT))
+        const int bytesToRead = 40 * bufferSize;
+
+        using (var fileAStreamReader = new StreamReader(pathA, Encoding.UTF8, true, bufferSize))
+        using (var fileTStreamWriter = new StreamWriter(pathT, false, Encoding.UTF8, bufferSize))
         {
             var records = new List<string>();
-            const int bytesToRead = 40 * 1024 * 1024;
+
             while (!fileAStreamReader.EndOfStream)
             {
                 int bytesRead = 0;
-                while (fileAStreamReader.ReadLine() is { } line && bytesRead < bytesToRead)
+                while (!fileAStreamReader.EndOfStream && bytesRead < bytesToRead)
                 {
+                    var line = fileAStreamReader.ReadLine();
                     bytesRead += Encoding.UTF8.GetByteCount(line);
                     records.Add(line);
                 }
 
-                QuickSort(records, 0, records.Count - 1);
+                records.Sort(CompareLines);
+
                 foreach (var record in records)
                 {
                     fileTStreamWriter.WriteLine(record);
@@ -36,13 +40,14 @@ public static class AdaptiveSorter
 
                 records.Clear();
             }
+
             fileAStreamReader.Close();
             fileTStreamWriter.Close();
         }
 
-        
-        using (var fileAStreamWriter = new StreamWriter(pathA))
-        using (var fileTStreamReader = new StreamReader(pathT))
+
+        using (var fileAStreamWriter = new StreamWriter(pathA, false, Encoding.UTF8, bufferSize))
+        using (var fileTStreamReader = new StreamReader(pathT, Encoding.UTF8, true, bufferSize))
         {
             while (!fileTStreamReader.EndOfStream)
             {
@@ -67,33 +72,6 @@ public static class AdaptiveSorter
         return keyA.CompareTo(keyB);
     }
 
-    private static void QuickSort(List<string> A, int left, int right)
-    {
-        if (left < right)
-        {
-            int pivot = Partition(A, left, right);
-            QuickSort(A, left, pivot - 1);
-            QuickSort(A, pivot + 1, right);
-        }
-    }
-
-    private static int Partition(List<string> A, int left, int right)
-    {
-        string x = A[right];
-        int i = left - 1;
-        for (int j = left; j < right; j++)
-        {
-            if (CompareLines(A[j], x) <= 0)
-            {
-                i++;
-                (A[i], A[j]) = (A[j], A[i]);
-            }
-        }
-
-        (A[i + 1], A[right]) = (A[right], A[i + 1]);
-        return i + 1;
-    }
-
     public static void AdaptiveMergeSort(string pathA)
     {
         List<int> indexListA = IndexCounter(pathA);
@@ -116,15 +94,16 @@ public static class AdaptiveSorter
 
     private static void Split(List<int> indexList, string path)
     {
-        using (var fileAStreamReader = new StreamReader(path))
-        using (var fileBStreamWriter = new StreamWriter(pathB))
-        using (var fileCStreamWriter = new StreamWriter(pathC))
+        using (var fileAStreamReader = new StreamReader(path, Encoding.UTF8, true, bufferSize))
+        using (var fileBStreamWriter = new StreamWriter(pathB, false, Encoding.UTF8, bufferSize))
+        using (var fileCStreamWriter = new StreamWriter(pathC, false, Encoding.UTF8, bufferSize))
         {
             string? line;
             var lineCounter = 0;
             var index = 1;
-            while ((line = fileAStreamReader.ReadLine()) != null)
+            while (!fileAStreamReader.EndOfStream)
             {
+                line = fileAStreamReader.ReadLine();
                 if (lineCounter == indexList[index - 1])
                 {
                     index++;
@@ -146,9 +125,9 @@ public static class AdaptiveSorter
 
     private static void AdaptiveMerge(List<int> indexListB, List<int> indexListC, string path)
     {
-        using (var fileAStreamWriter = new StreamWriter(path))
-        using (var fileBStreamReader = new StreamReader(pathB))
-        using (var fileCStreamReader = new StreamReader(pathC))
+        using (var fileAStreamWriter = new StreamWriter(path, false, Encoding.UTF8, bufferSize))
+        using (var fileBStreamReader = new StreamReader(pathB, Encoding.UTF8, true, bufferSize))
+        using (var fileCStreamReader = new StreamReader(pathC, Encoding.UTF8, true, bufferSize))
         {
             int indexB = 1;
             int indexC = 1;
@@ -231,17 +210,18 @@ public static class AdaptiveSorter
             }
         }
     }
-    
+
     private static List<int> IndexCounter(string path)
     {
         List<int> indexList = new([0]);
-        using (var streamReader = new StreamReader(path))
+        using (var streamReader = new StreamReader(path, Encoding.UTF8, true, bufferSize))
         {
             var indexIterator = 0;
             string? line;
             string? previousLine = null;
-            while ((line = streamReader.ReadLine()) != null)
+            while (!streamReader.EndOfStream)
             {
+                line = streamReader.ReadLine();
                 if (previousLine != null)
                 {
                     if (CompareLines(line, previousLine) < 0)
@@ -262,20 +242,23 @@ public static class AdaptiveSorter
 
     public static void IsSorted(string path)
     {
-        using (StreamReader streamReader = new(path))
+        using (StreamReader streamReader = new(path, Encoding.UTF8, true, bufferSize))
         {
             var prevLine = streamReader.ReadLine();
             string? line;
-            while ((line = streamReader.ReadLine()) != null)
+            while (!streamReader.EndOfStream)
             {
-                if (CompareLines(prevLine,line) > 0)
+                line = streamReader.ReadLine();
+                if (CompareLines(prevLine, line) > 0)
                 {
-                    Console.WriteLine("Not Sorted");
+                    Console.WriteLine("File is not Sorted");
                     return;
                 }
+
+                prevLine = line;
             }
 
-            Console.WriteLine("Is Sorted");
+            Console.WriteLine("File is Sorted");
         }
     }
 }
