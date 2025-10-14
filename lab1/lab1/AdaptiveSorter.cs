@@ -4,15 +4,15 @@ namespace lab1;
 
 public static class AdaptiveSorter
 {
-    const string pathB = "../../../files/fileB.txt";
+    const string pathB = "fileB.txt";
 
-    const string pathC = "../../../files/fileC.txt";
+    const string pathC = "fileC.txt";
 
     const int bufferSize = 1024 * 1024;
 
     public static void ModifiedAdaptiveMergeSort(string pathA)
     {
-        const string pathT = "../../../files/fileT.txt";
+        const string pathT = "fileT.txt";
 
         const int bytesToRead = 40 * bufferSize;
 

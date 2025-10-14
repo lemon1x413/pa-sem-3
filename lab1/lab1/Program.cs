@@ -10,18 +10,33 @@ class Program
 {
     static void Main(string[] args)
     {
-        var path = "../../../files/fileA.txt";
-        
+        var path = "fileA.txt";
+        Console.WriteLine("Chose sorting method: 1 - AdaptiveMergeSort, 2 - ModifiedAdaptiveMergeSort");
+        var method = Console.ReadLine();
+        Console.WriteLine("Enter number of records (45 000 000 is file size 1GB)");
+        int size = int.Parse(Console.ReadLine());
         var timer = new Stopwatch();
         timer.Start();
-        GenerateFile(path, 45000000);
+        GenerateFile(path, size);
         timer.Stop();
         Console.WriteLine($"Generation time: {timer.Elapsed}");
         timer.Restart();
-        AdaptiveSorter.ModifiedAdaptiveMergeSort(path);
-        timer.Start();
-        //AdaptiveSorter.AdaptiveMergeSort(path);
-        timer.Stop();
+        switch (method)
+        {
+            case "1":
+                timer.Start();
+                AdaptiveSorter.AdaptiveMergeSort(path);
+                timer.Stop();
+                break;
+            case "2":
+                timer.Start();
+                AdaptiveSorter.ModifiedAdaptiveMergeSort(path);
+                timer.Stop();
+                break;
+            default:
+                Console.WriteLine("Invalid input");
+                return;
+        }
         Console.WriteLine($"Sorting time: {timer.Elapsed}");
         timer.Restart();
         AdaptiveSorter.IsSorted(path);
