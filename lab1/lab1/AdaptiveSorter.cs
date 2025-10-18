@@ -56,6 +56,7 @@ public static class AdaptiveSorter
 
             fileAStreamWriter.Close();
             fileTStreamReader.Close();
+            File.Delete(pathT);
         }
 
         AdaptiveMergeSort(pathA);
@@ -88,7 +89,8 @@ public static class AdaptiveSorter
 
             indexListA = IndexCounter(pathA);
         }
-
+        File.Delete(pathB);
+        File.Delete(pathC);
         Console.WriteLine("Sorting done!");
     }
 
