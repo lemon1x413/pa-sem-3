@@ -1,26 +1,15 @@
 namespace lab2;
 
-public class RbfsSolver
+public static class RbfsSolver
 {
-    private readonly int _boardSize;
-    private readonly Func<int[], int, int> _hFunc;
-    private readonly string _hName;
-    private readonly SearchStatistics _stats;
-    
-    public RbfsSolver(int size, Func<int[], int, int> heuristic, string heuristicName)
-    {
-        _boardSize = size;
-        _hFunc = heuristic;
-        _hName = heuristicName;
-        _stats = new SearchStatistics($"RBFS (h={_hName})");
-    }
+    private static SearchStatistics? _currentRbfsStats;
 
     private class RbfsNode
     {
         public int[] Board { get; }
-        public int Depth { get; }
-        public int H { get; }
-        public int F { get; set; }
+        public int Depth { get; } 
+        public int H { get; } 
+        public int F { get; set; } 
 
         public RbfsNode(int[] board, int depth, Func<int[], int, int> hFunc)
         {
@@ -33,55 +22,57 @@ public class RbfsSolver
 
     private record RbfsResult(RbfsNode? Solution, int NewFLimit);
 
-    public SearchStatistics Run()
+    public static SearchStatistics Run(int size, Func<int[], int, int> heuristic, string heuristicName)
     {
-        var initialBoard = new int[_boardSize];
-        Array.Fill(initialBoard, -1);
-        var rootNode = new RbfsNode(initialBoard, 0, _hFunc);
-        _stats.GeneratedNodes++;
+        _currentRbfsStats = new SearchStatistics($"RBFS (h={heuristicName})");
 
-        var result = RecursiveSearch(rootNode, int.MaxValue);
+        var initialBoard = new int[size];
+        Array.Fill(initialBoard, -1);
+        var rootNode = new RbfsNode(initialBoard, 0, heuristic);
+        _currentRbfsStats.GeneratedNodes++;
+
+        var result = RecursiveSearch(rootNode, int.MaxValue, heuristic, size);
 
         if (result.Solution != null)
         {
-            _stats.SolutionFound = true;
-            _stats.SolutionBoard = result.Solution.Board;
+            _currentRbfsStats.SolutionFound = true;
+            _currentRbfsStats.SolutionBoard = result.Solution.Board;
         }
 
-        _stats.MaxNodesInMomory = _boardSize * _boardSize;
+        _currentRbfsStats.MaxNodesInMomory = size * size; 
 
-        return _stats;
+        return _currentRbfsStats;
     }
 
-    private RbfsResult RecursiveSearch(RbfsNode node, int fLimit)
+    private static RbfsResult RecursiveSearch(RbfsNode node, int fLimit, Func<int[], int, int> hFunc, int size)
     {
-        _stats.Iterations++;
+        _currentRbfsStats!.Iterations++;
 
-        if (node.Depth == _boardSize)
+        if (node.Depth == size) 
         {
-            if (node.H == 0)
+            if (node.H == 0) 
             {
                 return new RbfsResult(node, 0);
             }
             else
             {
-                _stats.DeadEnds++;
-                return new RbfsResult(null, int.MaxValue);
+                _currentRbfsStats.DeadEnds++;
+                return new RbfsResult(null, int.MaxValue); 
             }
         }
 
         var successors = new List<RbfsNode>();
         int nextCol = node.Depth;
-        for (int row = 0; row < _boardSize; row++)
+        for (int row = 0; row < size; row++) 
         {
             int[] newBoard = (int[])node.Board.Clone();
             newBoard[nextCol] = row;
-            var child = new RbfsNode(newBoard, node.Depth + 1, _hFunc);
+            var child = new RbfsNode(newBoard, node.Depth + 1, hFunc);
 
             child.F = Math.Max(child.F, node.F);
 
             successors.Add(child);
-            _stats.GeneratedNodes++;
+            _currentRbfsStats.GeneratedNodes++;
         }
 
         if (successors.Count == 0)
@@ -100,9 +91,9 @@ public class RbfsSolver
                 return new RbfsResult(null, best.F);
             }
 
-            int alternativeF = (successors.Count > 1) ? successors[1].F : int.MaxValue;
+            int alternativeF = successors.Count > 1 ? successors[1].F : int.MaxValue;
 
-            var result = RecursiveSearch(best, Math.Min(fLimit, alternativeF));
+            var result = RecursiveSearch(best, Math.Min(fLimit, alternativeF), hFunc, size);
 
             if (result.Solution != null)
             {

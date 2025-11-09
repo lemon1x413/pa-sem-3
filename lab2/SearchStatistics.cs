@@ -2,9 +2,9 @@
 
 namespace lab2;
 
-public class SearchStatistics
+public class SearchStatistics(string name)
 {
-    public string AlgorithmName { get; }
+    public string AlgorithmName { get; } = name;
     public bool SolutionFound { get; set; } = false;
     public int[]? SolutionBoard { get; set; }
 
@@ -13,18 +13,13 @@ public class SearchStatistics
     public long GeneratedNodes { get; set; } = 0; 
     public long MaxNodesInMomory { get; set; } = 0;
 
-    public SearchStatistics(string name)
-    {
-        AlgorithmName = name;
-    }
-
     public void Print()
     {
         Console.WriteLine($"Statistics for: {AlgorithmName}");
         if (SolutionFound && SolutionBoard != null)
         {
             Console.WriteLine("Solution has been found:\n");
-            Console.WriteLine(FormatBoard());
+            Console.WriteLine(FormatBoard(SolutionBoard));
         }
         else
         {
@@ -37,9 +32,9 @@ public class SearchStatistics
         Console.WriteLine($"Max nodes in memory: {MaxNodesInMomory:N0}");
     }
 
-    private string FormatBoard()
+    private static string FormatBoard(int[] board)
     {
-        int size = SolutionBoard.Length;
+        int size = board.Length;
         var sb = new StringBuilder();
 
         sb.Append("  "); 
@@ -55,7 +50,7 @@ public class SearchStatistics
 
             for (int col = 0; col < size; col++)
             {
-                sb.Append(SolutionBoard[col] == row ? " Q " : " . ");
+                sb.Append(board[col] == row ? " Q " : " . ");
             }
             sb.Append('\n'); 
         }

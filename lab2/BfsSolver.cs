@@ -1,25 +1,35 @@
 namespace lab2;
 
-public class BfsSolver(int size)
+public static class BfsSolver
 {
-    private record Node(int[] Board, int Depth);
+    private class BfsNode
+    {
+        public int[] Board { get; }
+        public int Depth { get; }
 
-    public SearchStatistics Run()
+        public BfsNode(int[] board, int depth)
+        {
+            Board = board;
+            Depth = depth;
+        }
+    }
+
+    public static SearchStatistics Run(int size)
     {
         var stats = new SearchStatistics("BFS");
-        var queue = new Queue<Node>();
+        var frontier = new Queue<BfsNode>();
 
         var initialBoard = new int[size];
         Array.Fill(initialBoard, -1);
-        queue.Enqueue(new Node(initialBoard, 0));
+        frontier.Enqueue(new BfsNode(initialBoard, 0));
         stats.GeneratedNodes++;
 
-        while (queue.Count > 0)
+        while (frontier.Count > 0)
         {
             stats.Iterations++;
-            stats.MaxNodesInMomory = Math.Max(stats.MaxNodesInMomory, queue.Count);
+            stats.MaxNodesInMomory = Math.Max(stats.MaxNodesInMomory, frontier.Count);
 
-            var currentNode = queue.Dequeue();
+            var currentNode = frontier.Dequeue();
 
             if (currentNode.Depth == size)
             {
@@ -41,9 +51,8 @@ public class BfsSolver(int size)
             {
                 int[] newBoard = (int[])currentNode.Board.Clone();
                 newBoard[nextCol] = row;
-
-                var childNode = new Node(newBoard, currentNode.Depth + 1);
-                queue.Enqueue(childNode);
+                var childNode = new BfsNode(newBoard, currentNode.Depth + 1);
+                frontier.Enqueue(childNode);
                 stats.GeneratedNodes++;
             }
         }

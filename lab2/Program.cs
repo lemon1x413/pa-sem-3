@@ -7,29 +7,31 @@ class Program
     private static void Main(string[] args)
     {
         const int boardSize = 8;
-
-        var bfsSolver = new BfsSolver(boardSize);
-        RunTest("1. BFS ", bfsSolver.Run);
-
-        var rbfsSolverF2 = new RbfsSolver(boardSize, Heuristics.F2, "F2");
-        RunTest("2. RBFS (F2 heuristics) ", rbfsSolverF2.Run);
-
-        var rbfsSolverHNew = new RbfsSolver(boardSize, Heuristics.H_new, "H_new");
-        RunTest("3. RBFS (H_new heuristics)", rbfsSolverHNew.Run);
-    }
-
-    private static void RunTest(string testName, Func<SearchStatistics> solveAction)
-    {
-        Console.WriteLine($"\nTest start: {testName}");
-
         var stopwatch = new Stopwatch();
 
-        stopwatch.Start();
-        var stats = solveAction();
+        Console.WriteLine("\nTest start for BFS");
+        stopwatch.Restart();
+        var bfsStats = BfsSolver.Run(boardSize);
         stopwatch.Stop();
-
         Console.WriteLine($"Test finished in: {stopwatch.ElapsedMilliseconds} ms");
-
-        stats.Print();
+        bfsStats.Print();
+        
+        Console.WriteLine("\n-----------------------------------------------------");
+        
+        Console.WriteLine("\nTest start for RBFS(F2)");
+        stopwatch.Restart();
+        var rbfsStatsF2 = RbfsSolver.Run(boardSize, Heuristics.F2, "F2");
+        stopwatch.Stop();
+        Console.WriteLine($"Test finished in: {stopwatch.ElapsedMilliseconds} ms");
+        rbfsStatsF2.Print();
+        
+        Console.WriteLine("\n-----------------------------------------------------");
+        
+        Console.WriteLine("\nTest start for RBFS(H_new)");
+        stopwatch.Restart();
+        var rbfsStatsHNew = RbfsSolver.Run(boardSize, Heuristics.H_new, "H_new");
+        stopwatch.Stop();
+        Console.WriteLine($"Test finished in: {stopwatch.ElapsedMilliseconds} ms");
+        rbfsStatsHNew.Print();
     }
 }
