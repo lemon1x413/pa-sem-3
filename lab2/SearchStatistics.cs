@@ -1,4 +1,6 @@
-﻿namespace lab2;
+﻿using System.Text;
+
+namespace lab2;
 
 public class SearchStatistics
 {
@@ -21,8 +23,8 @@ public class SearchStatistics
         Console.WriteLine($"Statistics for: {AlgorithmName}");
         if (SolutionFound && SolutionBoard != null)
         {
-            Console.WriteLine("Solution has been found.");
-            Console.WriteLine($"Board: [{string.Join(", ", SolutionBoard)}]");
+            Console.WriteLine("Solution has been found:\n");
+            Console.WriteLine(FormatBoard());
         }
         else
         {
@@ -33,5 +35,31 @@ public class SearchStatistics
         Console.WriteLine($"Dead ends: {DeadEnds:N0}");
         Console.WriteLine($"Generated nodes: {GeneratedNodes:N0}");
         Console.WriteLine($"Max nodes in memory: {MaxNodesInMomory:N0}");
+    }
+
+    private string FormatBoard()
+    {
+        int size = SolutionBoard.Length;
+        var sb = new StringBuilder();
+
+        sb.Append("  "); 
+        for (int col = 0; col < size; col++)
+        {
+            sb.Append($" {col} "); 
+        }
+        sb.Append('\n'); 
+
+        for (int row = 0; row < size; row++)
+        {
+            sb.Append(row.ToString().PadRight(2));
+
+            for (int col = 0; col < size; col++)
+            {
+                sb.Append(SolutionBoard[col] == row ? " Q " : " . ");
+            }
+            sb.Append('\n'); 
+        }
+
+        return sb.ToString();
     }
 }

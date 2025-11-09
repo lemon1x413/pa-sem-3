@@ -6,13 +6,7 @@ public class RbfsSolver
     private readonly Func<int[], int, int> _hFunc;
     private readonly string _hName;
     private readonly SearchStatistics _stats;
-
-    private int g(RbfsNode node) => node.Depth;
-
-    private int h(RbfsNode node) => node.H;
-
-    private int f(RbfsNode node) => node.F;
-
+    
     public RbfsSolver(int size, Func<int[], int, int> heuristic, string heuristicName)
     {
         _boardSize = size;

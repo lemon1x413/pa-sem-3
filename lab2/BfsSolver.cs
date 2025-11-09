@@ -7,19 +7,19 @@ public class BfsSolver(int size)
     public SearchStatistics Run()
     {
         var stats = new SearchStatistics("BFS");
-        var frontier = new Queue<Node>();
+        var queue = new Queue<Node>();
 
         var initialBoard = new int[size];
         Array.Fill(initialBoard, -1);
-        frontier.Enqueue(new Node(initialBoard, 0));
+        queue.Enqueue(new Node(initialBoard, 0));
         stats.GeneratedNodes++;
 
-        while (frontier.Count > 0)
+        while (queue.Count > 0)
         {
             stats.Iterations++;
-            stats.MaxNodesInMomory = Math.Max(stats.MaxNodesInMomory, frontier.Count);
+            stats.MaxNodesInMomory = Math.Max(stats.MaxNodesInMomory, queue.Count);
 
-            var currentNode = frontier.Dequeue();
+            var currentNode = queue.Dequeue();
 
             if (currentNode.Depth == size)
             {
@@ -43,7 +43,7 @@ public class BfsSolver(int size)
                 newBoard[nextCol] = row;
 
                 var childNode = new Node(newBoard, currentNode.Depth + 1);
-                frontier.Enqueue(childNode);
+                queue.Enqueue(childNode);
                 stats.GeneratedNodes++;
             }
         }
