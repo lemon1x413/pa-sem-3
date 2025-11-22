@@ -27,17 +27,40 @@ public static class Heuristics
 
     public static int H_new(int[] board, int depth)
     {
-        int[] oneSolution = { 4, 2, 0, 6, 1, 7, 5, 3 };
-
-        int misplaced = 0;
+        int conflicts = 0;
+        
         for (int i = 0; i < depth; i++)
         {
-            if (board[i] != oneSolution[i])
+            if (board[i] == -1) continue;
+            
+            for (int j = i + 1; j < depth; j++)
             {
-                misplaced++;
+                if (board[j] == -1) continue;
+                
+                if (board[i] == board[j])
+                {
+                    conflicts += 2; 
+                }
+                
+                int rowDiff = Math.Abs(i - j);
+                int colDiff = Math.Abs(board[i] - board[j]);
+                
+                if (rowDiff == colDiff)
+                {
+                    conflicts++;
+                }
             }
         }
-
-        return misplaced;
+        
+        int emptyColumns = 0;
+        for (int i = 0; i < depth; i++)
+        {
+            if (board[i] == -1)
+            {
+                emptyColumns++;
+            }
+        }
+        
+        return conflicts + emptyColumns * 2;
     }
 }
