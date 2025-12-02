@@ -11,9 +11,7 @@ using System.Windows.Shapes;
 
 namespace lab3;
 
-/// <summary>
-/// Interaction logic for MainWindow.xaml
-/// </summary>
+
 public partial class MainWindow : Window
 {
     private GameLogic _game;
@@ -40,17 +38,14 @@ public partial class MainWindow : Window
         int canvasWidth = (int)GameCanvas.ActualWidth;
         int canvasHeight = (int)GameCanvas.ActualHeight;
 
-        // Calculate actual cell size based on canvas
         int actualCellSize = Math.Min(
             (canvasWidth - 2 * MARGIN) / (gridSize - 1),
             (canvasHeight - 2 * MARGIN) / (gridSize - 1)
         );
 
-        // Ensure minimum cell size
         if (actualCellSize <= 0)
             actualCellSize = 80;
 
-        // Draw boxes
         for (int row = 0; row < gridSize - 1; row++)
         {
             for (int col = 0; col < gridSize - 1; col++)
@@ -61,8 +56,8 @@ public partial class MainWindow : Window
                 int owner = _game.GetBoxOwner(row, col);
                 Color boxColor = owner switch
                 {
-                    1 => Color.FromArgb(100, 33, 150, 243), // Blue for human
-                    2 => Color.FromArgb(100, 244, 67, 54), // Red for computer
+                    1 => Color.FromArgb(100, 33, 150, 243),
+                    2 => Color.FromArgb(100, 244, 67, 54), 
                     _ => Colors.Transparent
                 };
 
@@ -81,7 +76,6 @@ public partial class MainWindow : Window
             }
         }
 
-        // Draw horizontal lines
         for (int row = 0; row < gridSize; row++)
         {
             for (int col = 0; col < gridSize - 1; col++)
@@ -115,7 +109,6 @@ public partial class MainWindow : Window
             }
         }
 
-        // Draw vertical lines
         for (int row = 0; row < gridSize - 1; row++)
         {
             for (int col = 0; col < gridSize; col++)
@@ -148,7 +141,6 @@ public partial class MainWindow : Window
             }
         }
 
-        // Draw dots
         for (int row = 0; row < gridSize; row++)
         {
             for (int col = 0; col < gridSize; col++)
@@ -188,14 +180,13 @@ public partial class MainWindow : Window
             return;
         }
 
-        // If human didn't complete a box, it's computer's turn
         if (_game.CurrentPlayer == GameLogic.Player.Computer)
         {
             isComputerThinking = true;
             StatusText.Text = "Computer is thinking...";
             Dispatcher.InvokeAsync(async () =>
             {
-                await Task.Delay(500); // Small delay for better UX
+                await Task.Delay(500); 
                 ComputerMove();
                 isComputerThinking = false;
             });

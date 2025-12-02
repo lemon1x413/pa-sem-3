@@ -96,7 +96,7 @@ public class GameLogic
                     {
                         boxes[row, col] = currentPlayer == Player.Human ? 1 : 2;
                         completedBoxes.Add((row, col));
-
+                        
                         if (currentPlayer == Player.Human)
                             humanScore++;
                         else
@@ -105,7 +105,7 @@ public class GameLogic
                 }
             }
         }
-
+            
         return completedBoxes;
     }
 
