@@ -1,0 +1,53 @@
+<Window x:Class="lab5.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:lab5"
+        mc:Ignorable="d"
+        Title="Ant Colony Optimization - TSP" Height="700" Width="1000">
+    <Grid Background="#F5F5F5">
+        <StackPanel Margin="20">
+            <TextBlock Text="Мурашиний алгоритм для задачі комівояжера" FontSize="24" FontWeight="Bold" Margin="0,0,0,20" Foreground="#333"/>
+            
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                <Button Name="SolveButton" Content="Розпочати розв'язання" Click="SolveButton_Click" Padding="15,10" FontSize="14" Background="#4CAF50" Foreground="White" Margin="0,0,10,0"/>
+                <Button Name="ClearButton" Content="Очистити" Click="ClearButton_Click" Padding="15,10" FontSize="14" Background="#2196F3" Foreground="White"/>
+            </StackPanel>
+            
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                    <TextBlock Text="Параметри алгоритму:" FontSize="14" FontWeight="Bold" Margin="0,0,0,10"/>
+                    <TextBlock Text="Вершин: 250" Margin="0,5"/>
+                    <TextBlock Text="Мурах: 45 (10 дикі)" Margin="0,5"/>
+                    <TextBlock Text="α (вплив феромону): 4" Margin="0,5"/>
+                    <TextBlock Text="β (вплив відстані): 2" Margin="0,5"/>
+                    <TextBlock Text="ρ (випаровування): 0.3" Margin="0,5"/>
+                    <TextBlock Text="Ітерацій: 100" Margin="0,5"/>
+                </StackPanel>
+                
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="Результати:" FontSize="14" FontWeight="Bold" Margin="0,0,0,10"/>
+                    <TextBlock Text="Найкраща відстань:" Margin="0,5"/>
+                    <TextBlock Name="BestDistanceText" Text="Очікування..." Foreground="#4CAF50" FontWeight="Bold" Margin="20,0,0,10"/>
+                    <TextBlock Text="Статус:" Margin="0,5"/>
+                    <TextBlock Name="StatusText" Text="Готово" Foreground="#2196F3" FontWeight="Bold" Margin="20,0,0,0"/>
+                </StackPanel>
+            </Grid>
+            
+            <TextBlock Text="Прогрес по ітераціям:" FontSize="12" FontWeight="Bold" Margin="0,20,0,10"/>
+            <ListBox Name="ProgressListBox" Height="300" Background="White" BorderBrush="#DDD" BorderThickness="1">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" Foreground="#333"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+    </Grid>
+</Window>
